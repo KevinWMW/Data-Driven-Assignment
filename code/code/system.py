@@ -36,7 +36,7 @@ def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray, k=3)
     
     predictions = []
     for test_vector in test:
-        distances = np.sqrt(np.sum((euclidean_distance(train, test))**2, axis=1))
+        distances = np.sqrt(np.sum((euclidean_distance(train[:1600], test))**2, axis=0))
         nearest_neighbours = np.argsort(distances)[:k]
         most_frequent_label = np.bincount(train_labels[nearest_neighbours]).argmax()
         predictions = np.append(predictions, most_frequent_label)
