@@ -17,7 +17,7 @@ N_DIMENSIONS = 10
 def euclidean_distance(x1, x2):
     return np.sqrt(np.sum((x1 - x2)**2))
 
-def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray, k=3) -> List[str]:
+def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray) -> List[str]:
     """Classify a set of feature vectors using a training set.
 
     This dummy implementation simply returns the empty square label ('.')
@@ -33,7 +33,7 @@ def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray, k=3)
     Returns:
         list[str]: A list of one-character strings representing the labels for each square.
     """
-    
+    '''
     predictions = []
     for test_vector in test:
         distances = np.sqrt(np.sum((euclidean_distance(train, test))**2, axis=1))
@@ -41,6 +41,20 @@ def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray, k=3)
         most_frequent_label = np.bincount(train_labels[nearest_neighbours]).argmax()
         predictions = np.append(predictions, most_frequent_label)
     return predictions
+    '''
+    k=3
+    
+    # Super compact implementation of nearest neighbour
+    x = np.dot(test, train.transpose())
+    modtest = np.sqrt(np.sum(test * test, axis=1))
+    modtrain = np.sqrt(np.sum(train * train, axis=1))
+    dist = x / np.outer(modtest, modtrain.transpose())
+    
+    # cosine distance
+    nearest = np.argmax(dist, axis=1)
+    mdist = np.max(dist, axis=1)
+    label = train_labels[nearest]
+    return label
     
     
     # n_images = test.shape[0]
