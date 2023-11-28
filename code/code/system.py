@@ -17,7 +17,7 @@ N_DIMENSIONS = 10
 def euclidean_distance(x1, x2):
     return np.sqrt(np.sum((x1 - x2)**2))
 
-def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray, k) -> List[str]:
+def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray, k=3) -> List[str]:
     """Classify a set of feature vectors using a training set.
 
     This dummy implementation simply returns the empty square label ('.')
@@ -33,8 +33,18 @@ def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray, k) -
     Returns:
         list[str]: A list of one-character strings representing the labels for each square.
     """
-    n_images = test.shape[0]
-    return ["."] * n_images
+    
+    predictions = []
+    for test_vector in test:
+        distances = np.sqrt(np.sum((euclidean_distance(train, test))**2, axis=1))
+        nearest_neighbours = np.argsort(distances)[:k]
+        most_frequent_label = np.bincount(train_labels[nearest_neighbours]).argmax()
+        predictions = np.append(predictions, most_frequent_label)
+    return predictions
+    
+    
+    # n_images = test.shape[0]
+    # return ["."] * n_images
 
 
 # The functions below must all be provided in your solution. Think of them
