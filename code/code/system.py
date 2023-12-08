@@ -11,7 +11,7 @@ version: v1.0
 from typing import List
 
 import numpy as np
-from scipy import stats, linalg
+from scipy import linalg
 
 N_DIMENSIONS = 10
 
@@ -43,7 +43,7 @@ def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray) -> L
         predictions = np.append(predictions, most_frequent_label)
     return predictions
     '''
-    k=5
+    k=10
     
     # Super compact implementation of nearest neighbour
     x = np.dot(test, train.transpose())
@@ -54,11 +54,31 @@ def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray) -> L
     # cosine distance
     nearest = np.argmax(dist, axis=1) #[:k]
     mdist = np.max(dist, axis=1)
-    label = train_labels[nearest]
-    print(label)
-    return label
+    
+    # Get the closest k
+    k_indices = np.argsort(dist)[:k]
+    print("k indices shape : ", k_indices.shape)
+    print("k indices : ", k_indices)
+    k_nearest_labels = train_labels[k_indices]
+    
 
-    # dist = np.sqrt(np.sum((train[:, np.newaxis] - test) ** 2, axis=2))
+    label = train_labels[nearest]
+    print("label shape :",label.shape)
+    print("Label (nearest neighbour no k) : ", label)
+    print("k nearest labels : ", k_nearest_labels)
+    
+    k_nearest_labels = k_nearest_labels.transpose()
+    print("k nearest labels shape : ", k_nearest_labels.shape)
+    # Attempted knn implementation
+    most_freq_labels = np.unique(k_nearest_labels)
+    # print(most_freq_labels)
+    # print(len(most_freq_labels))
+    # print(most_freq_labels[1].shape)
+    # print(most_freq_labels[0])
+    # print(most_freq_labels[1])
+    print("This is [0] shape ", most_freq_labels[0].shape)
+    return k_nearest_labels
+
 
     # # Find the k nearest neighbors
     # nearest = np.argpartition(dist, k, axis=0)[:k]
@@ -100,32 +120,64 @@ def reduce_dimensions(data: np.ndarray, model: dict) -> np.ndarray:
         np.ndarray: The reduced feature vectors.
     """
     
-
+    nmax = 8  # number of pca components
+    sample_index = 5
 
 
     
-    # Step 2: Calculate the covariance matrix
-    # covariance_matrix = np.cov(data, rowvar=0)
+    # Calculate the covariance matrix
+    covariance_matrix = np.cov(data, rowvar=0)
 
-    # # Step 3: Calculate the eigenvalues and eigenvectors
-    # _, _, Vt = linalg.svd(covariance_matrix)
+    # Calculate the eigenvalues and eigenvectors
+    N = covariance_matrix.shape[0]
+    # print(covariance_matrix.shape)
     
     # N = covariance_matrix.shape[0]
     # eigenvectors = linalg.eigh(covariance_matrix, eigvals=(N - 10, N - 1))
-
+    v = linalg.eigh(covariance_matrix, eigvals=(N - 10, N - 1))
+    eigenvalues = v[0]
+    eigenvectors = v[1]
+    # print(np.shape(eigenvectors))
+    # print(np.shape(eigenvalues))
+    # print("before shape", np.shape(data))
     # # Projecting the data onto the principal components axis.
-    # data = np.dot((data - np.mean(data)), eigenvectors[1])
+    pca_data = np.dot((data - np.mean(data)), eigenvectors)
+    # print("pca shape : ", np.shape(pca_data))
+    # reconstructed = np.dot(pcatrain_data, v.transpose()) + np.mean(train_data) #reconstructing the data back from 10 to 2500 dimensions, I don't see the need for it.
+    reduced_data = pca_data 
 
     # eigenvectors = np.fliplr(eigenvectors)
     # Step 4: Sort the eigenvectors by decreasing eigenvalues
     # and choose the first k eigenvectors
     # W = Vt.T[:, :model[10]]
-
-    # Step 5: Transform the original matrix
-    # reduced_data = np.dot(data, W)
     
-    reduced_data = data[:, 0:N_DIMENSIONS]
-    return reduced_data
+    data_mean = np.mean(data, axis=0)
+
+    # data_list = data.tolist()
+    # for n in range(1, nmax):
+    #     npca = n * 2
+    #     reconstructed = (
+    #         np.dot(
+    #             np.dot(data - data_mean, eigenvectors[:, 0:npca]), eigenvectors[:, 0:npca].transpose()
+    #         )
+    #         + data_mean
+    #     )
+    #     data_list.append(reconstructed)
+    
+    # N=6
+    # reconstructed = (
+    #     np.dot(
+    #         np.dot(data[0, :] - data_mean, eigenvectors[:, 0 : N - 1]),
+    #         eigenvectors[:, 0 : N - 1].transpose(),
+    #     )
+    #     + data_mean
+    # )
+    # print(reconstructed.shape)
+    # print(reconstructed)
+    # print(np.ndim(reconstructed))
+    # reduced_data = data[:, 0:N_DIMENSIONS]
+    # print(len(data_list))
+    return reduced_data 
     
     # pca_data = np.dot((data - np.mean(data)), v)
     # N = 6 # project the images from the data set into N-dimensional PCA space.
