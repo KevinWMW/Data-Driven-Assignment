@@ -11,6 +11,7 @@ version: v1.0
 from typing import List
 
 import numpy as np
+from scipy import stats, linalg
 
 N_DIMENSIONS = 10
 
@@ -42,7 +43,7 @@ def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray) -> L
         predictions = np.append(predictions, most_frequent_label)
     return predictions
     '''
-    k=3
+    k=5
     
     # Super compact implementation of nearest neighbour
     x = np.dot(test, train.transpose())
@@ -51,10 +52,25 @@ def classify(train: np.ndarray, train_labels: np.ndarray, test: np.ndarray) -> L
     dist = x / np.outer(modtest, modtrain.transpose())
     
     # cosine distance
-    nearest = np.argmax(dist, axis=1)
+    nearest = np.argmax(dist, axis=1) #[:k]
     mdist = np.max(dist, axis=1)
     label = train_labels[nearest]
+    print(label)
     return label
+
+    # dist = np.sqrt(np.sum((train[:, np.newaxis] - test) ** 2, axis=2))
+
+    # # Find the k nearest neighbors
+    # nearest = np.argpartition(dist, k, axis=0)[:k]
+
+    # # Get the labels of the k nearest neighbors
+    # nearest_labels = train_labels[nearest]
+
+    # # Use majority voting to decide the label
+    # labels = stats.mode(nearest_labels, axis=0)
+    # labels = labels.ravel()
+
+    # return labels.tolist()
     
     
     # n_images = test.shape[0]
@@ -83,9 +99,45 @@ def reduce_dimensions(data: np.ndarray, model: dict) -> np.ndarray:
     Returns:
         np.ndarray: The reduced feature vectors.
     """
+    
 
+
+
+    
+    # Step 2: Calculate the covariance matrix
+    # covariance_matrix = np.cov(data, rowvar=0)
+
+    # # Step 3: Calculate the eigenvalues and eigenvectors
+    # _, _, Vt = linalg.svd(covariance_matrix)
+    
+    # N = covariance_matrix.shape[0]
+    # eigenvectors = linalg.eigh(covariance_matrix, eigvals=(N - 10, N - 1))
+
+    # # Projecting the data onto the principal components axis.
+    # data = np.dot((data - np.mean(data)), eigenvectors[1])
+
+    # eigenvectors = np.fliplr(eigenvectors)
+    # Step 4: Sort the eigenvectors by decreasing eigenvalues
+    # and choose the first k eigenvectors
+    # W = Vt.T[:, :model[10]]
+
+    # Step 5: Transform the original matrix
+    # reduced_data = np.dot(data, W)
+    
     reduced_data = data[:, 0:N_DIMENSIONS]
     return reduced_data
+    
+    # pca_data = np.dot((data - np.mean(data)), v)
+    # N = 6 # project the images from the data set into N-dimensional PCA space.
+    # nmax = 8 # number of pca components
+    # reconstructed = (
+    #     np.dot(
+    #         np.dot(data[0, :] - mean_train, v[:, 0 : N - 1]),
+    #         v[:, 0 : N - 1].transpose(),
+    #     )
+    #     + mean_train
+    # )
+    # reduced_data = data[:, 0:N_DIMENSIONS]
 
 
 def process_training_data(fvectors_train: np.ndarray, labels_train: np.ndarray) -> dict:
