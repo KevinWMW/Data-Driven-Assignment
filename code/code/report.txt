@@ -10,14 +10,20 @@ the parsing to fail.]
 includes all the steps that you have taken to produce the 20-dimensional feature vector
 starting from the initial image of the puzzle.]
 
+I used Principle Components Analysis to reduce dimensionality, selecting relevant features. Although Linear Discriminant Analysis would have been better suited for this extraction.
+My knowledge in PCA offered me leverage in successful feature extraction. PCA can filter out noise from data. The removal of unwanted data prevents overfitting thus giving a higher percentage.
+
 ## Square Classifier (Max 200 Words)
 
 [Describe and justify the design of your classifier and any associated classifier training
 stage.]
 
+I used k-Nearest Neighbour as my classifier. 
+
 ## Full-board Classification (Max 200 Words)
 
 [Describe the approach that you have taken for classifying the full board.]
+
 
 ## Performance
 
